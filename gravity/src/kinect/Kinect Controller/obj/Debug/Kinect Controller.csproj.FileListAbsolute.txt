@@ -1,0 +1,34 @@
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\bin\AnyCPU\Debug\BodyBasics-WPF.exe.config
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\BodyBasics-WPF.exe
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\BodyBasics-WPF.pdb
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\bin\AnyCPU\Debug\BodyBasics-WPF.exe
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\bin\AnyCPU\Debug\BodyBasics-WPF.pdb
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\bin\AnyCPU\Debug\Microsoft.Kinect.dll
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\bin\AnyCPU\Debug\NAudio.dll
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\bin\AnyCPU\Debug\Microsoft.Kinect.xml
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\bin\AnyCPU\Debug\NAudio.xml
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\Kinect Controller.csprojResolveAssemblyReference.cache
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\MainWindow.baml
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\MainWindow.g.cs
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\App.g.cs
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\BodyBasics-WPF_MarkupCompile.cache
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\BodyBasics-WPF.g.resources
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\Microsoft.Samples.Kinect.BodyBasics.Properties.Resources.resources
+C:\Users\vitaly\Dropbox (Personal)\Kinect Controller\obj\Debug\Kinect Controller.csproj.GenerateResource.Cache
+D:\Dropbox\Kinect Controller\bin\AnyCPU\Debug\BodyBasics-WPF.exe.config
+D:\Dropbox\Kinect Controller\obj\Debug\BodyBasics-WPF.exe
+D:\Dropbox\Kinect Controller\obj\Debug\BodyBasics-WPF.pdb
+D:\Dropbox\Kinect Controller\obj\Debug\Kinect Controller.csprojResolveAssemblyReference.cache
+D:\Dropbox\Kinect Controller\obj\Debug\MainWindow.baml
+D:\Dropbox\Kinect Controller\obj\Debug\MainWindow.g.cs
+D:\Dropbox\Kinect Controller\obj\Debug\App.g.cs
+D:\Dropbox\Kinect Controller\obj\Debug\BodyBasics-WPF_MarkupCompile.cache
+D:\Dropbox\Kinect Controller\obj\Debug\BodyBasics-WPF.g.resources
+D:\Dropbox\Kinect Controller\bin\AnyCPU\Debug\BodyBasics-WPF.exe
+D:\Dropbox\Kinect Controller\bin\AnyCPU\Debug\BodyBasics-WPF.pdb
+D:\Dropbox\Kinect Controller\bin\AnyCPU\Debug\Microsoft.Kinect.dll
+D:\Dropbox\Kinect Controller\bin\AnyCPU\Debug\NAudio.dll
+D:\Dropbox\Kinect Controller\bin\AnyCPU\Debug\Microsoft.Kinect.xml
+D:\Dropbox\Kinect Controller\bin\AnyCPU\Debug\NAudio.xml
+D:\Dropbox\Kinect Controller\obj\Debug\Microsoft.Samples.Kinect.BodyBasics.Properties.Resources.resources
+D:\Dropbox\Kinect Controller\obj\Debug\Kinect Controller.csproj.GenerateResource.Cache

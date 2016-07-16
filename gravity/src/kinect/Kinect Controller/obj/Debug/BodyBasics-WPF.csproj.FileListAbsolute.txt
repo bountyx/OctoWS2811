@@ -1,0 +1,26 @@
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\bin\AnyCPU\Debug\BodyBasics-WPF.exe.config
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\bin\AnyCPU\Debug\BodyBasics-WPF.exe
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\bin\AnyCPU\Debug\BodyBasics-WPF.pdb
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\bin\AnyCPU\Debug\Microsoft.Kinect.dll
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\bin\AnyCPU\Debug\Microsoft.Kinect.xml
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\BodyBasics-WPF.csprojResolveAssemblyReference.cache
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\MainWindow.baml
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\MainWindow.g.cs
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\App.g.cs
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\BodyBasics-WPF_MarkupCompile.cache
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\BodyBasics-WPF.g.resources
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\Microsoft.Samples.Kinect.BodyBasics.Properties.Resources.resources
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\BodyBasics-WPF.csproj.GenerateResource.Cache
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\BodyBasics-WPF.exe
+C:\Users\Vitaly\Dropbox (Personal)\BodyBasics-WPF\obj\Debug\BodyBasics-WPF.pdb
+D:\Dropbox\BodyBasics-WPF\bin\AnyCPU\Debug\BodyBasics-WPF.exe.config
+D:\Dropbox\BodyBasics-WPF\obj\Debug\BodyBasics-WPF.exe
+D:\Dropbox\BodyBasics-WPF\obj\Debug\BodyBasics-WPF.pdb
+D:\Dropbox\BodyBasics-WPF\obj\Debug\BodyBasics-WPF.csprojResolveAssemblyReference.cache
+D:\Dropbox\BodyBasics-WPF\obj\Debug\MainWindow.baml
+D:\Dropbox\BodyBasics-WPF\obj\Debug\MainWindow.g.cs
+D:\Dropbox\BodyBasics-WPF\obj\Debug\App.g.cs
+D:\Dropbox\BodyBasics-WPF\obj\Debug\BodyBasics-WPF_MarkupCompile.cache
+D:\Dropbox\BodyBasics-WPF\obj\Debug\BodyBasics-WPF.g.resources
+C:\Users\vitaly\Dropbox (Personal)\BodyBasics-WPF\bin\AnyCPU\Debug\NAudio.dll
+C:\Users\vitaly\Dropbox (Personal)\BodyBasics-WPF\bin\AnyCPU\Debug\NAudio.xml

@@ -1,0 +1,78 @@
+﻿<Window x:Class="Microsoft.Samples.Kinect.BodyBasics.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Body Basics" 
+        Height="700" Width="1000" 
+        Loaded="MainWindow_Loaded"
+        Closing="MainWindow_Closing">
+    <Window.Resources>
+        <SolidColorBrush x:Key="MediumGreyBrush" Color="#ff6e6e6e" />
+        <SolidColorBrush x:Key="KinectPurpleBrush" Color="#ff52318f" />
+        <SolidColorBrush x:Key="KinectBlueBrush" Color="#ff00BCF2" />
+    </Window.Resources>
+    <Grid Margin="0,0,3.333,-10.333" HorizontalAlignment="Right" Width="990">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="498.667" />
+            <RowDefinition Height="116"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Image Grid.Row="0" Source="Images\Logo.png" HorizontalAlignment="Left" Width="81" Margin="63,-126,0,280.667" />
+        <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" Margin="885,-200,55,235.667" />
+
+        <Viewbox Grid.Row="0" Margin="231,71,0,-15.333" Grid.RowSpan="4">
+            <Image Source="{Binding ImageSource}" Stretch="None" />
+        </Viewbox>
+
+        <StatusBar Grid.Row="3" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="{StaticResource MediumGreyBrush}" Margin="0,0,0,-0.333" Height="6">
+            <StatusBarItem Content="{Binding StatusText}" />
+        </StatusBar>
+        <TextBlock Grid.Row="0" Margin="437,25,205,428.667" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="20"><Run Text="RAISE BOTH FISTS TO TAKE CONTROL!"/></TextBlock>
+        <ListView Margin="31,71,785,299.667" Name="TEENSYS_LEFT">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="PlaneL" Width="50" DisplayMemberBinding="{Binding Plane_Number}" />
+                    <GridViewColumn Header="Index" Width="50" DisplayMemberBinding="{Binding Index}" />
+                    <GridViewColumn Header="Com_Port" Width="60" DisplayMemberBinding="{Binding COM_Port}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView Margin="31,198,785,249.667" x:Name="TEENSYS_UPLEFT">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Plane_UL" Width="50" DisplayMemberBinding="{Binding Plane_Number}" />
+                    <GridViewColumn Header="Index" Width="50" DisplayMemberBinding="{Binding Index}" />
+                    <GridViewColumn Header="Com_Port" Width="60" DisplayMemberBinding="{Binding COM_Port}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView Margin="31,351,785,19.667" x:Name="TEENSYS_RIGHT">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="PlaneR" Width="50" DisplayMemberBinding="{Binding Plane_Number}" />
+                    <GridViewColumn Header="Index" Width="50" DisplayMemberBinding="{Binding Index}" />
+                    <GridViewColumn Header="Com_Port" Width="60" DisplayMemberBinding="{Binding COM_Port}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView Margin="31,249,785,198.667" x:Name="TEENSYS_TOP">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Plane_T" Width="50" DisplayMemberBinding="{Binding Plane_Number}" />
+                    <GridViewColumn Header="Index" Width="50" DisplayMemberBinding="{Binding Index}" />
+                    <GridViewColumn Header="Com_Port" Width="60" DisplayMemberBinding="{Binding COM_Port}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView Margin="31,300,785,147.667" x:Name="TEENSYS_UPRIGHT">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="PlaneUR" Width="50" DisplayMemberBinding="{Binding Plane_Number}" />
+                    <GridViewColumn Header="Index" Width="50" DisplayMemberBinding="{Binding Index}" />
+                    <GridViewColumn Header="Com_Port" Width="60" DisplayMemberBinding="{Binding COM_Port}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </Grid>
+</Window>

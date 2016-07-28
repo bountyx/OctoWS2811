@@ -22,8 +22,6 @@ double PatternStart = 0;
 int FrameCounterWall_Height = 0;
 int FrameCounterRoof_Height = 0;
 
-
-
 class Panel {
   int X_Length;
   int Y_Length;  
@@ -55,6 +53,13 @@ class Tunnel {
     Top         = new Panel(Tunnel_length, top_width);   
   }
 }
+
+  //define dimensions of the tunnel and use constructor and create global Tunnel Object
+  int wall_height = 8*4;
+  int roof_length = 8;
+  int tunnel_length = 150;
+  Tunnel T = new Tunnel(wall_height,roof_length, roof_length, tunnel_length);
+
 
 void setup() {
   size(400, 400);  
@@ -100,13 +105,9 @@ void draw() {
   
   
   
-  //define dimensions of the tunnel and use constructor
-  int wall_height = 8*4;
-  int roof_length = 8;
-  int tunnel_length = 150;
-  Tunnel T = new Tunnel(wall_height,roof_length, roof_length, tunnel_length);
- 
-  PatternIndex = 8;
+
+  //basic patterns that do not use Tunnel object
+  //PatternIndex = 8;
   if(false)
   {
     for(int y = 0; y < frameHeight; y++){
@@ -191,6 +192,7 @@ void draw() {
       }
       
     }
+    frame.updatePixels();  
     image(frame, 0, 0);
   }
   else
@@ -234,19 +236,49 @@ void draw() {
             T.Top.Panel_frame.pixels[x+T.Top.X_Length*y] = color(R,G,B);  
           }
         }  
-      }
- //<>//
+      } //<>//
     }
     T.Right_Wall.Panel_frame.updatePixels();
     T.Right_Roof.Panel_frame.updatePixels();
     T.Top.Panel_frame.updatePixels();
     T.Left_Roof.Panel_frame.updatePixels();
     T.Left_Wall.Panel_frame.updatePixels();
+    
+    //integrate the 4 panels into 1 pimage to send to LEDs
+    int destination_offset_Y = 0;
+    frame.copy(T.Right_Wall.Panel_frame,0,0,
+               T.Right_Wall.X_Length,T.Right_Wall.Y_Length,
+               0,destination_offset_Y,
+               T.Right_Wall.X_Length,T.Right_Wall.Y_Length);
+    destination_offset_Y = T.Right_Wall.Y_Length;
+    frame.copy(T.Right_Roof.Panel_frame,0,0,
+               T.Right_Roof.X_Length,T.Right_Roof.Y_Length,
+               0,destination_offset_Y,
+               T.Right_Roof.X_Length,T.Right_Roof.Y_Length);               
+    destination_offset_Y = T.Right_Wall.Y_Length + T.Right_Roof.Y_Length;
+    frame.copy(T.Top.Panel_frame,0,0,
+               T.Top.X_Length,T.Top.Y_Length,
+               0,destination_offset_Y,
+               T.Top.X_Length,T.Top.Y_Length);               
+    destination_offset_Y = T.Right_Wall.Y_Length + T.Right_Roof.Y_Length + T.Top.Y_Length;
+    frame.copy(T.Left_Roof.Panel_frame,0,0,
+               T.Left_Roof.X_Length,T.Left_Roof.Y_Length,
+               0,destination_offset_Y,
+               T.Left_Roof.X_Length,T.Left_Roof.Y_Length);               
+    destination_offset_Y = T.Right_Wall.Y_Length + T.Right_Roof.Y_Length + T.Top.Y_Length + T.Left_Roof.Y_Length;
+    frame.copy(T.Right_Wall.Panel_frame,0,0,
+               T.Right_Wall.X_Length,T.Right_Wall.Y_Length,
+               0,destination_offset_Y,
+               T.Right_Wall.X_Length,T.Right_Wall.Y_Length);               
+                              
+    image(frame, 0, 0);
+    /*
     image(T.Right_Wall.Panel_frame, 0, 0);
     image(T.Right_Roof.Panel_frame, 0, T.Right_Wall.Y_Length);
-    image(T.Top.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length);
+    image(T.Top.Panel_frame, 0, T.Right_Wall.Y_Length + T.  Right_Roof.Y_Length);
     image(T.Left_Roof.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+T.Top.Y_Length);
     image(T.Left_Wall.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+ T.Left_Roof.Y_Length+ T.Top.Y_Length);
+    */
   }
   FrameCounterX++; // used to change the pattern over time (animation) 
   FrameCounterX %= frameWidth;
@@ -277,5 +309,5 @@ void draw() {
     delay(1);
     frameTime = millis();
   }
-    LastFrameTime = millis();
+  LastFrameTime = millis();
 }

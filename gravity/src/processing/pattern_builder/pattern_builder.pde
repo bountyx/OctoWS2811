@@ -1,0 +1,218 @@
+PImage img;
+public int frameWidth = 150*5;
+public int frameHeight = 88*5;
+int FrameDiag = round(sqrt(pow(frameHeight,2) + pow(frameWidth,2)));
+double LastFrameTime = 0;
+double frameTime = 0;
+int FrameCounterX = 0;
+int FrameCounterY = 0;
+int FrameCounterDiag = 0;
+int PatternIndex = 0;
+
+int framerate = 300;
+double PatternTime = 0;
+double PatternStart = 0;
+
+int FrameCounterWall_Height = 0;
+int FrameCounterRoof_Height = 0;
+
+
+
+class Panel {
+  int X_Length;
+  int Y_Length;  
+  int P_index;
+  PImage Panel_frame = new PImage();
+  Panel(int X, int Y)  //constructor to set X and Y and allocate PImage for pixel array
+  {
+    X_Length = X; //<>//
+    Y_Length = Y;
+    Panel_frame = createImage(X_Length, Y_Length, RGB);
+    Panel_frame.loadPixels();
+  }
+}
+
+class Tunnel {
+  //constructor that maps dimensions onto each tunnel panel
+    Panel Left_Wall;
+    Panel Right_Wall;
+    Panel Left_Roof;
+    Panel Right_Roof;
+    Panel Top;
+  Tunnel(int wall_height,  int side_roof_Length, int top_width, int Tunnel_length) 
+  {
+    //index is set in the order of the Teensy's layout
+    Left_Wall   = new Panel(Tunnel_length, wall_height);
+    Right_Wall  = new Panel(Tunnel_length, wall_height);
+    Left_Roof   = new Panel(Tunnel_length, side_roof_Length);
+    Right_Roof  = new Panel(Tunnel_length, side_roof_Length);
+    Top         = new Panel(Tunnel_length, top_width);   
+  }
+}
+
+void setup() {
+  size(400, 400);  
+  surface.setSize(frameWidth, frameHeight);   
+}
+
+void draw() {
+  background(0);
+  int R=0,G=0,B=0;
+  PImage frame = createImage(frameWidth, frameHeight, RGB);
+  frame.loadPixels();
+  
+  //define dimensions of the tunnel and use constructor
+  int wall_height = 8*4;
+  int roof_length = 8;
+  int tunnel_length = 150;
+  Tunnel T = new Tunnel(wall_height,roof_length, roof_length, tunnel_length);
+ 
+  PatternIndex = 8;
+  if(false)
+  {
+    for(int y = 0; y < frameHeight; y++){
+      for(int x = 0; x < frameWidth; x++)   
+      {
+        
+        switch(PatternIndex)
+        {
+        case(0):
+          PatternTime = 1000;
+          R = 127;
+          G = x;
+          B = 2*y;
+          break;
+       case(1):
+          PatternTime = 1000;
+          R = x;
+          G = 2*y;
+          B = 0;
+        break;
+        case(2):
+          PatternTime = 1000;
+          R = 127;
+          G = x;
+          B = 0;
+        break;
+        case(3):
+          PatternTime = 1000;
+          R = 127;
+          G = FrameCounterX;
+          B = FrameCounterY;
+        break;
+        case(4):
+          PatternTime = 1000;
+          R = FrameCounterX;
+          G = x;
+          B = FrameCounterY*2;
+        break;
+        case(5): //animation  x= 0:150, y = 0:88
+          PatternTime = 1000*frameWidth/framerate;
+          R = 150;
+          if(x == FrameCounterX) //horizontal index that counts between 0 and 150 every frame
+            G = 150;
+          else
+            G = 0;
+          B = 0;
+          break;
+        case(6): //animation  x= 0:150, y = 0:88
+          PatternTime = 1000*frameHeight/framerate;
+          R = 255;
+          if(y == FrameCounterY) //verticle index that counts between 0 and 88 every frame
+            G = 255;
+          else
+            G = 0;
+          B = 0;
+          break;
+          case(7): //diagnal
+          PatternTime =  1000000/framerate * FrameDiag;
+          R = 255;
+          if((round(y*FrameDiag/frameHeight) == FrameCounterDiag) && (round(x*FrameDiag/frameWidth) == FrameCounterDiag)) 
+            G = 255;
+          else
+            G = 0;
+          B = 0;
+          break;
+          case(8): //diagnal line commet
+          int LineLength = 25;
+          PatternTime =  1000000/framerate * FrameDiag;
+          int scaledY = round(y*FrameDiag/frameHeight);
+          int scaledX = round(x*FrameDiag/frameWidth);
+          R = 255;
+          G = 0;
+          for(int lineIndex = 0; lineIndex <LineLength;lineIndex++)
+          {
+            if((scaledY == (FrameCounterDiag-lineIndex)) && (scaledX == (FrameCounterDiag-lineIndex)))
+              G = 255-10*lineIndex;
+          }
+          B = 0;
+          break;
+      }
+      frame.pixels[x+frameWidth*y] = color(R,G,B);  // input RGB value for each pixel
+      }
+      
+    }
+    image(frame, 0, 0);
+  }
+  else
+  {
+    //object oriented animation similar to (6)
+    surface.setSize( T.Right_Wall.X_Length, T.Right_Wall.Y_Length+T.Left_Wall.Y_Length+T.Right_Roof.Y_Length+T.Left_Roof.Y_Length+T.Top.Y_Length);
+   // T.Right_Wall.Panel_frame.loadPixels();
+   // T.Left_Wall.Panel_frame.loadPixels();
+    for(int p=0; p<5; p++){  //5 panels
+      switch(p)
+      {
+        case 0: case 5: //walls will be symetrical
+        for(int y = 0; y < T.Right_Wall.Y_Length; y++){ //use longest panel (should change this to while loop
+          for(int x = 0; x < T.Right_Wall.X_Length; x++)   //use wall x (should change this to while loop
+          {
+            PatternTime = 1000*frameHeight/framerate;
+            R = 255;
+            if(y == FrameCounterWall_Height) //verticle index that counts between 0 and 88 every frame
+              G = 255;
+            else
+              G = 0;
+            B = 0;
+            T.Right_Wall.Panel_frame.pixels[x+T.Right_Wall.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
+            T.Left_Wall.Panel_frame.pixels[x+T.Right_Wall.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
+          }
+        }
+      }
+          T.Right_Wall.Panel_frame.updatePixels();
+          T.Left_Wall.Panel_frame.updatePixels();
+       image(T.Right_Wall.Panel_frame, 0, 0);
+       image(T.Left_Wall.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+ T.Left_Roof.Y_Length+ T.Top.Y_Length);
+    }
+  }
+  FrameCounterX++; // used to change the pattern over time (animation) 
+  FrameCounterX %= frameWidth;
+  FrameCounterY++; // used to change the pattern over time (animation)
+  FrameCounterY %= frameHeight;
+  FrameCounterDiag++;
+  FrameCounterDiag %= FrameDiag;
+  
+//object oriented counters
+FrameCounterWall_Height++;
+FrameCounterWall_Height %= T.Right_Wall.Y_Length;
+FrameCounterRoof_Height++;
+FrameCounterRoof_Height %= T.Right_Roof.Y_Length;
+
+  
+  if(millis() - PatternStart > PatternTime)  //go to next pattern and reset counters after pattern completes
+  {
+    PatternIndex++;
+    PatternIndex = PatternIndex % 9; //8 patterns only
+    FrameCounterX = 0;
+    FrameCounterY = 0;
+    PatternStart = millis();
+  }
+  
+  
+  do //control frame rate
+  {
+    delay(1);
+    frameTime = millis();
+  }while(frameTime-LastFrameTime<1000/framerate);
+  LastFrameTime = millis();
+}

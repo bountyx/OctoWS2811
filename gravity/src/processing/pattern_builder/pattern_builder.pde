@@ -1,3 +1,9 @@
+import KinectPV2.KJoint;
+import KinectPV2.*;
+
+KinectPV2 kinect;
+int [] depthZero;
+
 PImage img;
 public int frameWidth = 150*5;
 public int frameHeight = 88*5;
@@ -52,14 +58,47 @@ class Tunnel {
 
 void setup() {
   size(400, 400);  
-  surface.setSize(frameWidth, frameHeight);   
+  surface.setSize(frameWidth, frameHeight);
+  depthZero    = new int[ KinectPV2.WIDTHDepth * KinectPV2.HEIGHTDepth];
+  
+  kinect = new KinectPV2(this);
+  kinect.enableDepthImg(true);
+  kinect.enableSkeleton3DMap(true);
+  kinect.init();
 }
 
 void draw() {
   background(0);
   int R=0,G=0,B=0;
+  double RightHandRaisedRatio = 0;
+  double depth_RightHand_Ratio = 0;
   PImage frame = createImage(frameWidth, frameHeight, RGB);
   frame.loadPixels();
+  
+  ArrayList<KSkeleton> skeletonArray =  kinect.getSkeleton3d();
+  int [] DepthRaw = kinect.getRawDepthData();
+
+  //individual JOINTS
+  for (int i = 0; i < skeletonArray.size(); i++) {
+    KSkeleton skeleton = (KSkeleton) skeletonArray.get(i);
+    if (skeleton.isTracked()) {
+      KJoint[] joints = skeleton.getJoints();
+
+      PVector RightWristP = joints[KinectPV2.JointType_WristRight].getPosition();
+      PVector RightKneeP = joints[KinectPV2.JointType_KneeRight].getPosition();
+      PVector HeadP = joints[KinectPV2.JointType_Head].getPosition();   
+      double depth = joints[KinectPV2.JointType_WristRight].getZ();
+      depth_RightHand_Ratio = depth/4; //4 is as deep as you can go!
+      RightHandRaisedRatio =  (RightWristP.y-RightKneeP.y*.85)/(HeadP.y - RightKneeP.y);
+      //println(RightWristP);
+     
+     // println(depth);
+     
+
+    }
+  }
+  
+  
   
   //define dimensions of the tunnel and use constructor
   int wall_height = 8*4;
@@ -163,13 +202,14 @@ void draw() {
     for(int p=0; p<5; p++){  //5 panels
       switch(p)
       {
-        case 0: case 5: //walls will be symetrical
+        case 0: case 4: //walls will be symetrical
         for(int y = 0; y < T.Right_Wall.Y_Length; y++){ //use longest panel (should change this to while loop
           for(int x = 0; x < T.Right_Wall.X_Length; x++)   //use wall x (should change this to while loop
           {
             PatternTime = 1000*frameHeight/framerate;
             R = 255;
-            if(y == FrameCounterWall_Height) //verticle index that counts between 0 and 88 every frame
+            //if(y == FrameCounterWall_Height) //verticle index that counts between 0 and 88 every frame
+            if(y== (int)(T.Right_Wall.Y_Length*RightHandRaisedRatio))
               G = 255;
             else
               G = 0;
@@ -178,13 +218,36 @@ void draw() {
             T.Left_Wall.Panel_frame.pixels[x+T.Right_Wall.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
           }
         }
+        case 1: case 2: case 3: //roofs
+        for(int y = 0; y < T.Right_Roof.Y_Length; y++){ //use longest panel (should change this to while loop
+          for(int x = 0; x < T.Right_Roof.X_Length; x++)   //use wall x (should change this to while loop
+          {
+            R = 255;
+            //if(y == FrameCounterWall_Height) //verticle index that counts between 0 and 88 every frame
+            if(x== (int)(T.Right_Roof.X_Length * depth_RightHand_Ratio))
+              G = 255;
+            else
+              G = 0;
+            B = 0;
+            T.Right_Roof.Panel_frame.pixels[x+T.Right_Roof.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
+            T.Left_Roof.Panel_frame.pixels[x+T.Right_Roof.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
+            T.Top.Panel_frame.pixels[x+T.Top.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
+          }
+        }  
       }
           T.Right_Wall.Panel_frame.updatePixels();
           T.Left_Wall.Panel_frame.updatePixels();
        image(T.Right_Wall.Panel_frame, 0, 0);
+       image(T.Right_Roof.Panel_frame, 0, T.Right_Wall.Y_Length);
+       image(T.Top.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length);
+       image(T.Left_Roof.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+T.Top.Y_Length);
        image(T.Left_Wall.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+ T.Left_Roof.Y_Length+ T.Top.Y_Length);
     }
   }
+  
+ 
+  
+  
   FrameCounterX++; // used to change the pattern over time (animation) 
   FrameCounterX %= frameWidth;
   FrameCounterY++; // used to change the pattern over time (animation)
@@ -192,11 +255,11 @@ void draw() {
   FrameCounterDiag++;
   FrameCounterDiag %= FrameDiag;
   
-//object oriented counters
-FrameCounterWall_Height++;
-FrameCounterWall_Height %= T.Right_Wall.Y_Length;
-FrameCounterRoof_Height++;
-FrameCounterRoof_Height %= T.Right_Roof.Y_Length;
+  //object oriented counters
+  FrameCounterWall_Height++;
+  FrameCounterWall_Height %= T.Right_Wall.Y_Length;
+  FrameCounterRoof_Height++;
+  FrameCounterRoof_Height %= T.Right_Roof.Y_Length;
 
   
   if(millis() - PatternStart > PatternTime)  //go to next pattern and reset counters after pattern completes

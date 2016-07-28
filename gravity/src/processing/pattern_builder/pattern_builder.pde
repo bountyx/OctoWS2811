@@ -15,7 +15,7 @@ int FrameCounterY = 0;
 int FrameCounterDiag = 0;
 int PatternIndex = 0;
 
-int framerate = 300;
+int framerate = 30;
 double PatternTime = 0;
 double PatternStart = 0;
 
@@ -209,45 +209,45 @@ void draw() {
             PatternTime = 1000*frameHeight/framerate;
             R = 255;
             //if(y == FrameCounterWall_Height) //verticle index that counts between 0 and 88 every frame
-            if(y== (int)(T.Right_Wall.Y_Length*RightHandRaisedRatio))
+            if(y== (int)(T.Right_Wall.Y_Length*RightHandRaisedRatio))  //change that Y pixel which is related to the right hand raised ratio
               G = 255;
             else
               G = 0;
             B = 0;
             T.Right_Wall.Panel_frame.pixels[x+T.Right_Wall.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
-            T.Left_Wall.Panel_frame.pixels[x+T.Right_Wall.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
+            T.Left_Wall.Panel_frame.pixels[T.Right_Wall.X_Length*T.Right_Wall.Y_Length -1- (x+T.Right_Wall.X_Length*y)] = color(R,G,B);  //inverted index for left wall
           }
         }
         case 1: case 2: case 3: //roofs
-        for(int y = 0; y < T.Right_Roof.Y_Length; y++){ //use longest panel (should change this to while loop
-          for(int x = 0; x < T.Right_Roof.X_Length; x++)   //use wall x (should change this to while loop
+        for(int y = 0; y < T.Right_Roof.Y_Length; y++){ 
+          for(int x = 0; x < T.Right_Roof.X_Length; x++)   
           {
             R = 255;
             //if(y == FrameCounterWall_Height) //verticle index that counts between 0 and 88 every frame
-            if(x== (int)(T.Right_Roof.X_Length * depth_RightHand_Ratio))
+            if(x== (int)(T.Right_Roof.X_Length * depth_RightHand_Ratio)) //change that X pixel which is related to the right hand depth ratio (maps Z to X)
               G = 255;
             else
               G = 0;
             B = 0;
-            T.Right_Roof.Panel_frame.pixels[x+T.Right_Roof.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
-            T.Left_Roof.Panel_frame.pixels[x+T.Right_Roof.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
-            T.Top.Panel_frame.pixels[x+T.Top.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
+            T.Right_Roof.Panel_frame.pixels[x+T.Right_Roof.X_Length*y] = color(R,G,B);  
+            T.Left_Roof.Panel_frame.pixels[x+T.Right_Roof.X_Length*y] = color(R,G,B);  
+            T.Top.Panel_frame.pixels[x+T.Top.X_Length*y] = color(R,G,B);  
           }
         }  
       }
-          T.Right_Wall.Panel_frame.updatePixels();
-          T.Left_Wall.Panel_frame.updatePixels();
-       image(T.Right_Wall.Panel_frame, 0, 0);
-       image(T.Right_Roof.Panel_frame, 0, T.Right_Wall.Y_Length);
-       image(T.Top.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length);
-       image(T.Left_Roof.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+T.Top.Y_Length);
-       image(T.Left_Wall.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+ T.Left_Roof.Y_Length+ T.Top.Y_Length);
+ //<>//
     }
+    T.Right_Wall.Panel_frame.updatePixels();
+    T.Right_Roof.Panel_frame.updatePixels();
+    T.Top.Panel_frame.updatePixels();
+    T.Left_Roof.Panel_frame.updatePixels();
+    T.Left_Wall.Panel_frame.updatePixels();
+    image(T.Right_Wall.Panel_frame, 0, 0);
+    image(T.Right_Roof.Panel_frame, 0, T.Right_Wall.Y_Length);
+    image(T.Top.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length);
+    image(T.Left_Roof.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+T.Top.Y_Length);
+    image(T.Left_Wall.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+ T.Left_Roof.Y_Length+ T.Top.Y_Length);
   }
-  
- 
-  
-  
   FrameCounterX++; // used to change the pattern over time (animation) 
   FrameCounterX %= frameWidth;
   FrameCounterY++; // used to change the pattern over time (animation)
@@ -261,7 +261,6 @@ void draw() {
   FrameCounterRoof_Height++;
   FrameCounterRoof_Height %= T.Right_Roof.Y_Length;
 
-  
   if(millis() - PatternStart > PatternTime)  //go to next pattern and reset counters after pattern completes
   {
     PatternIndex++;
@@ -271,11 +270,12 @@ void draw() {
     PatternStart = millis();
   }
   
-  
-  do //control frame rate
+  //control delay between next frame to maintain target framerate
+  frameTime = millis();  
+  while(frameTime-LastFrameTime<1000/framerate)
   {
     delay(1);
     frameTime = millis();
-  }while(frameTime-LastFrameTime<1000/framerate);
-  LastFrameTime = millis();
+  }
+    LastFrameTime = millis();
 }

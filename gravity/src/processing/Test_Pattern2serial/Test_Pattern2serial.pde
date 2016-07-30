@@ -255,14 +255,14 @@ void draw() {
      // thread(ledSerial[i].write(ledData)); 
     }
     //wait for all threads to finish
-    
+    /*
     for (int i=0; i < numPorts; i++) {   
       try{
         SendThreads[i].join();
   
       } catch (InterruptedException e) {}
     }
-  
+  */
     
   }
 }

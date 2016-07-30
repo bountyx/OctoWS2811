@@ -64,7 +64,7 @@ PImage[] ledImage = new PImage[maxPorts];      // image sent to each port
 int[] gammatable = new int[256];
 int errorCount=0;
 
-float framerate=15;
+float framerate=30;
 
 double LastFrameTime = 0;
 double frameTime = 0;
@@ -111,7 +111,7 @@ void draw() {
     PImage frame = createImage(frameWidth, frameHeight, RGB);
     frame.loadPixels();
   
-   // PatternIndex = 7;
+    PatternIndex = 5;
     for(int y = 0; y < frameHeight; y++){
       for(int x = 0; x < frameWidth; x++)   
       {
@@ -188,7 +188,7 @@ void draw() {
 
     frame.updatePixels();
     
-    PImage frame2 = loadImage("C:/Kinect/Arduino/libraries/OctoWS2811/examples/VideoDisplay/Processing/movie2serial/Bleed1.png");
+ //   PImage frame2 = loadImage("C:/Kinect/Arduino/libraries/OctoWS2811/examples/VideoDisplay/Processing/movie2serial/Bleed1.png");
   /* frame2.updatePixels();
     PImage img = createImage(230, 230, ARGB);
   for(int i = 0; i < img.pixels.length; i++) {
@@ -203,22 +203,28 @@ void draw() {
     
     image(frame, 0,0); 
     
-    do //control frame rate
+    frameTime = millis();  
+    while(frameTime-LastFrameTime<1000/framerate)
     {
       delay(1);
       frameTime = millis();
-    }while(frameTime-LastFrameTime<1000/framerate);
+    }
+
+    println(1000/(frameTime-LastFrameTime));
     LastFrameTime = millis();
     
     SendSerial SendThreads[] = new SendSerial[numPorts];
+    for (int j = 0; j < numPorts; j++) {
+      SendThreads[j] = new SendSerial();
+    }
     
     for (int i=0; i < numPorts; i++) {    
       // copy a portion of the movie's image to the LED image
-      int xoffset = percentage(frame2.width, ledArea[i].x);
-      int yoffset = percentage(frame2.height, ledArea[i].y);
-      int xwidth =  percentage(frame2.width, ledArea[i].width);
-      int yheight = percentage(frame2.height, ledArea[i].height);
-      ledImage[i].copy(frame2, xoffset, yoffset, xwidth, yheight,
+      int xoffset = percentage(frame.width, ledArea[i].x);
+      int yoffset = percentage(frame.height, ledArea[i].y);
+      int xwidth =  percentage(frame.width, ledArea[i].width);
+      int yheight = percentage(frame.height, ledArea[i].height);
+      ledImage[i].copy(frame, xoffset, yoffset, xwidth, yheight,
                        0, 0, ledImage[i].width, ledImage[i].height);
       // convert the LED image to raw data
       byte[] ledData =  new byte[(ledImage[i].width * ledImage[i].height * 3) + 3];
@@ -249,12 +255,14 @@ void draw() {
      // thread(ledSerial[i].write(ledData)); 
     }
     //wait for all threads to finish
+    
     for (int i=0; i < numPorts; i++) {   
       try{
         SendThreads[i].join();
   
       } catch (InterruptedException e) {}
     }
+  
     
   }
 }

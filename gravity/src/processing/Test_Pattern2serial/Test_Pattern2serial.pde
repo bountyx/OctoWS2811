@@ -95,6 +95,8 @@ void setup() {
   size(480, 400);  // create the window //<>//
  // myMovie.loop();  // start the movie :-)
  // RunTestPattern();
+ 
+
 }
 
  
@@ -208,6 +210,7 @@ void draw() {
     }while(frameTime-LastFrameTime<1000/framerate);
     LastFrameTime = millis();
     
+    SendSerial SendThreads[] = new SendSerial[numPorts];
     
     for (int i=0; i < numPorts; i++) {    
       // copy a portion of the movie's image to the LED image
@@ -238,10 +241,38 @@ void draw() {
       ledData[2] = (byte)(usec >> 8); // at 75% of the frame time
       
       // send the raw data to the LEDs  :-)
-      //ledSerial[i].write(ledData); 
+
+      SendThreads[i].SetData(i, ledData);
+      SendThreads[i].start();
+
+      //send1.send(i, ledData);
+     // thread(ledSerial[i].write(ledData)); 
     }
+    //wait for all threads to finish
+    for (int i=0; i < numPorts; i++) {   
+      try{
+        SendThreads[i].join();
+  
+      } catch (InterruptedException e) {}
+    }
+    
   }
 }
+
+public class SendSerial extends Thread{
+  int index;
+  byte ledDataSendData[];
+  
+  public void SetData(int i, byte ledData[]) {
+  index = i;
+  ledDataSendData = ledData;
+}
+  
+  public void run(){
+    ledSerial[index].write(ledDataSendData);
+  }
+}
+  
 
 // image2data converts an image to OctoWS2811's raw data format.
 // The number of vertical pixels in the image must be a multiple

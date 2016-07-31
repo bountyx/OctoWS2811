@@ -42,6 +42,8 @@ import java.awt.Rectangle;
 import KinectPV2.KJoint;
 import KinectPV2.*;
 
+float framerate=30;
+
 KinectPV2 kinect;
 int [] depthZero;
 
@@ -54,7 +56,7 @@ int frameWidth = 150;
 int frameHeight = 88;
 
 int numPorts=0;  // the number of serial ports in use
-int maxPorts=24; // maximum number of serial ports
+int maxPorts=11; // maximum number of serial ports
 
 Serial[] ledSerial = new Serial[maxPorts];     // each port's actual Serial port
 Rectangle[] ledArea = new Rectangle[maxPorts]; // the area of the movie each port gets, in % (0-100)
@@ -63,7 +65,7 @@ PImage[] ledImage = new PImage[maxPorts];      // image sent to each port
 int[] gammatable = new int[256];
 int errorCount=0;
 
-float framerate=50;
+
 double PatternTime = 0;
 double PatternStart = 0;
 
@@ -114,7 +116,13 @@ class Tunnel {
 
 void setup() {
   String[] list = Serial.list();
-  //delay(4000);
+  delay(4000);
+  depthZero    = new int[ KinectPV2.WIDTHDepth * KinectPV2.HEIGHTDepth];
+  kinect = new KinectPV2(this);
+  kinect.enableDepthImg(true);
+  kinect.enableSkeleton3DMap(true);
+  kinect.init();
+
   println("Serial Ports List:");
   println(list);
   serialConfigure("COM1");   // Right-side #1 (Master)
@@ -133,13 +141,7 @@ void setup() {
   for (int i=0; i < 256; i++) {
     gammatable[i] = (int)(pow((float)i / 255.0, gamma) * 255.0 + 0.5);
   }
-  size(480, 400);  // create the window //<>//
-  depthZero    = new int[ KinectPV2.WIDTHDepth * KinectPV2.HEIGHTDepth];
-  
-  kinect = new KinectPV2(this);
-  kinect.enableDepthImg(true);
-  kinect.enableSkeleton3DMap(true);
-  kinect.init();
+  size(480, 400);  // create the window
 }
 
  
@@ -149,109 +151,111 @@ void draw() {
   {
     // read the movie's next frame
     //m.read();
-  int R=0,G=0,B=0;
-  double RightHandRaisedRatio = 0;
-  double depth_RightHand_Ratio = 0;
-  PImage frame = createImage(tunnel_length, wall_height*2 + roof_length*3 , RGB);
-  frame.loadPixels();
+    int R=0,G=0,B=0;
+    double RightHandRaisedRatio = 0;
+    double depth_RightHand_Ratio = 0;
+    PImage frame = createImage(tunnel_length, wall_height*2 + roof_length*3 , RGB);
+    frame.loadPixels();
+    
+    ArrayList<KSkeleton> skeletonArray =  kinect.getSkeleton3d();
+    int [] DepthRaw = kinect.getRawDepthData();
   
-  ArrayList<KSkeleton> skeletonArray =  kinect.getSkeleton3d();
-  int [] DepthRaw = kinect.getRawDepthData();
-
-  //individual JOINTS
-  for (int i = 0; i < skeletonArray.size(); i++) {
-    KSkeleton skeleton = (KSkeleton) skeletonArray.get(i);
-    if (skeleton.isTracked()) {
-      KJoint[] joints = skeleton.getJoints();
-
-      PVector RightWristP = joints[KinectPV2.JointType_WristRight].getPosition();
-      PVector RightKneeP = joints[KinectPV2.JointType_KneeRight].getPosition();
-      PVector HeadP = joints[KinectPV2.JointType_Head].getPosition();   
-      double depth = joints[KinectPV2.JointType_WristRight].getZ();
-      depth_RightHand_Ratio = depth/4; //4 is as deep as you can go!
-      RightHandRaisedRatio =  (RightWristP.y-RightKneeP.y*.85)/(HeadP.y - RightKneeP.y);
-      //println(RightWristP);
-     
-     // println(depth);
-    }
-  }
- 
-  if(true)
-  {
-  //  PImage frame = createImage(frameWidth, frameHeight, RGB);
-    PatternIndex = 7;
-    for(int y = 0; y < frameHeight; y++){
-      for(int x = 0; x < frameWidth; x++)   
-      {
-        {
-          switch(PatternIndex)
-          {
-          case(0):
-            R = 127;
-            G = x;
-            B = 2*y;
-            break;
-         case(1):
-            R = x;
-            G = 2*y;
-            B = 0;
-          break;
-          case(2):
-            R = 127;
-            G = x;
-            B = 0;
-          break;
-          case(3):
-            R = 127;
-            G = FrameCounterX;
-            B = FrameCounterY;
-          break;
-          case(4):
-            R = FrameCounterX;
-            G = x;
-            B = FrameCounterY*2;
-          break;
-          case(5): //animation  x= 0:150, y = 0:88
-            R = 127;
+    //individual JOINTS
+    for (int i = 0; i < skeletonArray.size(); i++) {
+      KSkeleton skeleton = (KSkeleton) skeletonArray.get(i);
+        if (skeleton.isTracked()) {
+        KJoint[] joints = skeleton.getJoints();
   
-            if(x == FrameCounterX) //horizontal index that counts between 0 and 150 every frame
-              G = 127;
-            else
-              G = 0;
-            B = 0;
-            break;
-          case(6): //animation  x= 0:150, y = 0:88
-            R = 255;
-  
-            if(y == FrameCounterY) //verticle index that counts between 0 and 88 every frame
-              G = 255;
-            else
-              G = 0;
-            B = 0;
-            break;
-            case(7):
-            R = 0;
-            G = (int)(y*(255/88));
-            B = 0;
-            break;
-        }
-      frame.pixels[x+frameWidth*y] = color(R,G,B);  // input RGB value for each pixel
+        PVector RightWristP = joints[KinectPV2.JointType_WristRight].getPosition();
+        PVector RightKneeP = joints[KinectPV2.JointType_KneeRight].getPosition();
+        PVector HeadP = joints[KinectPV2.JointType_Head].getPosition();   
+        double depth = joints[KinectPV2.JointType_WristRight].getZ();
+        depth_RightHand_Ratio = (depth-2)/5; //4 is as deep as you can go!
+        RightHandRaisedRatio =  (RightWristP.y-RightKneeP.y*.85)/(HeadP.y - RightKneeP.y);
+        //println(RightWristP);
+       
+       // println(depth);
       }
     }
-  }
-  if(FrameCounterX == frameWidth)  //change pattern every 30 seconds
-  {
-    FrameCounterX=0;
-    PatternIndex++; //animation pattern
-  }
-
-  FrameCounterX++; // used to change the pattern over time (animation)
-  FrameCounterY++; // used to change the pattern over time (animation)
-  FrameCounterY = FrameCounterY % frameHeight;
-
-  PatternIndex = PatternIndex % 7; //5 patterns only
-
-  frame.updatePixels();
+   
+    if(false)
+    {
+    //  PImage frame = createImage(frameWidth, frameHeight, RGB);
+    //  PatternIndex = 6;
+      for(int y = 0; y < frameHeight; y++){
+        for(int x = 0; x < frameWidth; x++)   
+        {
+          {
+            switch(PatternIndex)
+            {
+            case(0):
+              R = 127;
+              G = x;
+              B = int(y/2);
+              break;
+           case(1):
+              R = x;
+              G = 2*y;
+              B = 0;
+            break;
+            case(2):
+              R = 127;
+              G = x;
+              B = 0;
+            break;
+            case(3):
+              R = 127;
+              G = FrameCounterX;
+              B = FrameCounterY;
+            break;
+            case(4):
+              R = FrameCounterX;
+              G = x;
+              B = FrameCounterY*2;
+            break;
+            case(5): //animation  x= 0:150, y = 0:88
+              R = 127;
+    
+              if(x == FrameCounterX) //horizontal index that counts between 0 and 150 every frame
+                G = 127;
+              else
+                G = 0;
+              B = 0;
+              break;
+            case(6): //animation  x= 0:150, y = 0:88
+              R = 0;
+    
+              if(y == FrameCounterY) //verticle index that counts between 0 and 88 every frame
+                G = 255;
+              else
+                G = 0;
+              B = 0;
+              break;
+              case(7):
+              R = 0;
+              G = (int)(y*(255/88));
+              B = 0;
+              break;
+          }
+        frame.pixels[x+frameWidth*y] = color(R,G,B);  // input RGB value for each pixel
+        }
+      }
+    }
+    if(FrameCounterX == frameWidth)  //change pattern every 30 seconds
+    {
+      FrameCounterX = 0;
+      FrameCounterY = 0;
+      PatternIndex++; //animation pattern
+      println("pattern" + PatternIndex);
+    }
+  
+    FrameCounterX++; // used to change the pattern over time (animation)
+    FrameCounterY++; // used to change the pattern over time (animation)
+    FrameCounterY = FrameCounterY % frameHeight;
+  
+    PatternIndex = PatternIndex % 7; //5 patterns only
+  
+    frame.updatePixels();
     
  //   PImage frame2 = loadImage("C:/Kinect/Arduino/libraries/OctoWS2811/examples/VideoDisplay/Processing/movie2serial/Bleed1.png");
   /* frame2.updatePixels();
@@ -264,7 +268,7 @@ void draw() {
   */
   //background(0);
   // image(img, 90, 80);
-
+    surface.setSize(frameWidth, frameHeight);
     image(frame, 0,0); 
   }
   else
@@ -290,6 +294,7 @@ void draw() {
             T.Left_Wall.Panel_frame.pixels[T.Right_Wall.X_Length*T.Right_Wall.Y_Length -1- (x+T.Right_Wall.X_Length*y)] = color(R,G,B);  //inverted index for left wall
           }
         }
+        break;
         case 1: case 2: case 3: //roofs
         for(int y = 0; y < T.Right_Roof.Y_Length; y++){ 
           for(int x = 0; x < T.Right_Roof.X_Length; x++)   
@@ -358,7 +363,7 @@ void draw() {
       delay(1);
       frameTime = millis();
     }
-    println(1000/(frameTime-LastFrameTime));
+//    println(1000/(frameTime-LastFrameTime));
     LastFrameTime = millis();
     
     SendSerial SendThreads[] = new SendSerial[numPorts];
@@ -372,35 +377,26 @@ void draw() {
       int yoffset = percentage(frame.height, ledArea[i].y);
       int xwidth =  percentage(frame.width, ledArea[i].width);
       int yheight = percentage(frame.height, ledArea[i].height);
-      ledImage[i].copy(frame, xoffset, yoffset, xwidth, yheight,
-                       0, 0, ledImage[i].width, ledImage[i].height);
+      ledImage[i].copy(frame, xoffset, i*ledImage[i].height, xwidth, ledImage[i].height, 0, 0, ledImage[i].width, ledImage[i].height);
+      /*
+      println(xoffset);
+      println(yoffset);
+      println(xwidth);
+      println(yheight);
+      println(ledImage[i].width);
+      println(ledImage[i].height);
+        */              
       // convert the LED image to raw data
       byte[] ledData =  new byte[(ledImage[i].width * ledImage[i].height * 3) + 3];
       image2data(ledImage[i], ledData, ledLayout[i]);
-      /*
-      if (i == 0) {
-        ledData[0] = '*';  // first Teensy is the frame sync master
-        int usec = (int)((1000000.0 / framerate) * 0.75);
-        ledData[1] = (byte)(usec);   // request the frame sync pulse
-        ledData[2] = (byte)(usec >> 8); // at 75% of the frame time
-      } else {
-        ledData[0] = '%';  // others sync to the master board
-        ledData[1] = 0;
-        ledData[2] = 0;
-      }
-      */
       ledData[0] = '*';  // others sync to the master board
-      int usec = 5900*(numPorts-i);
+      int usec = 0;// 5900*(numPorts-i);
       ledData[1] = (byte)(usec);   // request the frame sync pulse
       ledData[2] = (byte)(usec >> 8); // at 75% of the frame time
       
       // send the raw data to the LEDs  :-)
-
       SendThreads[i].SetData(i, ledData);
       SendThreads[i].start();
-
-      //send1.send(i, ledData);
-     // thread(ledSerial[i].write(ledData)); 
     }
     //wait for all threads to finish
     delay(13);   
@@ -411,8 +407,6 @@ void draw() {
   //    println(millis() - startThreads);
       } catch (InterruptedException e) {}
     }
-
-    
   }
 }
 
@@ -455,7 +449,17 @@ void image2data(PImage image, byte[] data, boolean layout) {
     for (x = xbegin; x != xend; x += xinc) {
       for (int i=0; i < 8; i++) {
         // fetch 8 pixels from the image, 1 for each pin
-        pixel[i] = image.pixels[x + (y + linesPerPin * i) * image.width];
+        int j = i;
+        if (j == 0)
+          {j =2;}
+        else if (j == 2)
+          {j =0;}
+        else if (j == 4)
+          {j =6;}
+        else if (j == 6)
+          {j =4;}
+        int Loc = x + (y + linesPerPin * j) * image.width;
+        pixel[i] = image.pixels[Loc];
         pixel[i] = colorWiring(pixel[i]);
       }
       // convert 8 pixels to 24 bytes
@@ -492,12 +496,18 @@ void serialConfigure(String portName) {
   try {
     ledSerial[numPorts] = new Serial(this, portName);
     if (ledSerial[numPorts] == null) throw new NullPointerException();
+    } catch (Throwable e) {
+    delay(2000);
+  try {
+    ledSerial[numPorts] = new Serial(this, portName);
+    if (ledSerial[numPorts] == null) throw new NullPointerException();
    // ledSerial[numPorts].write('?');
-  } catch (Throwable e) {
+  } catch (Throwable f) {
     println("Port " + portName + "non-functional");
  //   errorCount++;
     return;
   }
+    }
   delay(50);
   String line = ledSerial[numPorts].readStringUntil(10);
   if (line == null) {

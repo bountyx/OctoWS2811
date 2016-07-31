@@ -39,13 +39,12 @@
 import processing.video.*;
 import processing.serial.*;
 import java.awt.Rectangle;
-/*
 import KinectPV2.KJoint;
 import KinectPV2.*;
 
 KinectPV2 kinect;
-*/
-//Movie myMovie = new Movie(this, "/tmp/Toy_Story.avi");
+int [] depthZero;
+
 
 float gamma = 1.7;
 int FrameCounter = 0;
@@ -64,12 +63,54 @@ PImage[] ledImage = new PImage[maxPorts];      // image sent to each port
 int[] gammatable = new int[256];
 int errorCount=0;
 
-float framerate=30;
+float framerate=50;
+double PatternTime = 0;
+double PatternStart = 0;
+
 
 double LastFrameTime = 0;
 double frameTime = 0;
 int FrameCounterX = 0;
 int FrameCounterY = 0;
+
+class Panel {
+  int X_Length;
+  int Y_Length;  
+  int P_index;
+  PImage Panel_frame = new PImage();
+  Panel(int X, int Y)  //constructor to set X and Y and allocate PImage for pixel array
+  {
+    X_Length = X;
+    Y_Length = Y;
+    Panel_frame = createImage(X_Length, Y_Length, RGB);
+    Panel_frame.loadPixels();
+  }
+}
+
+class Tunnel {
+  //constructor that maps dimensions onto each tunnel panel
+    Panel Left_Wall;
+    Panel Right_Wall;
+    Panel Left_Roof;
+    Panel Right_Roof;
+    Panel Top;
+  Tunnel(int wall_height,  int side_roof_Length, int top_width, int Tunnel_length) 
+  {
+    //index is set in the order of the Teensy's layout
+    Left_Wall   = new Panel(Tunnel_length, wall_height);
+    Right_Wall  = new Panel(Tunnel_length, wall_height);
+    Left_Roof   = new Panel(Tunnel_length, side_roof_Length);
+    Right_Roof  = new Panel(Tunnel_length, side_roof_Length);
+    Top         = new Panel(Tunnel_length, top_width);   
+  }
+}
+
+  //define dimensions of the tunnel and use constructor and create global Tunnel Object
+  int wall_height = 8*4;
+  int roof_length = 8;
+  int tunnel_length = 150;
+  Tunnel T = new Tunnel(wall_height,roof_length, roof_length, tunnel_length);
+
 
 void setup() {
   String[] list = Serial.list();
@@ -93,10 +134,12 @@ void setup() {
     gammatable[i] = (int)(pow((float)i / 255.0, gamma) * 255.0 + 0.5);
   }
   size(480, 400);  // create the window //<>//
- // myMovie.loop();  // start the movie :-)
- // RunTestPattern();
- 
-
+  depthZero    = new int[ KinectPV2.WIDTHDepth * KinectPV2.HEIGHTDepth];
+  
+  kinect = new KinectPV2(this);
+  kinect.enableDepthImg(true);
+  kinect.enableSkeleton3DMap(true);
+  kinect.init();
 }
 
  
@@ -106,12 +149,37 @@ void draw() {
   {
     // read the movie's next frame
     //m.read();
-    int R=0,G=0,B=0;
-    
-    PImage frame = createImage(frameWidth, frameHeight, RGB);
-    frame.loadPixels();
+  int R=0,G=0,B=0;
+  double RightHandRaisedRatio = 0;
+  double depth_RightHand_Ratio = 0;
+  PImage frame = createImage(tunnel_length, wall_height*2 + roof_length*3 , RGB);
+  frame.loadPixels();
   
-    PatternIndex = 5;
+  ArrayList<KSkeleton> skeletonArray =  kinect.getSkeleton3d();
+  int [] DepthRaw = kinect.getRawDepthData();
+
+  //individual JOINTS
+  for (int i = 0; i < skeletonArray.size(); i++) {
+    KSkeleton skeleton = (KSkeleton) skeletonArray.get(i);
+    if (skeleton.isTracked()) {
+      KJoint[] joints = skeleton.getJoints();
+
+      PVector RightWristP = joints[KinectPV2.JointType_WristRight].getPosition();
+      PVector RightKneeP = joints[KinectPV2.JointType_KneeRight].getPosition();
+      PVector HeadP = joints[KinectPV2.JointType_Head].getPosition();   
+      double depth = joints[KinectPV2.JointType_WristRight].getZ();
+      depth_RightHand_Ratio = depth/4; //4 is as deep as you can go!
+      RightHandRaisedRatio =  (RightWristP.y-RightKneeP.y*.85)/(HeadP.y - RightKneeP.y);
+      //println(RightWristP);
+     
+     // println(depth);
+    }
+  }
+ 
+  if(true)
+  {
+  //  PImage frame = createImage(frameWidth, frameHeight, RGB);
+    PatternIndex = 7;
     for(int y = 0; y < frameHeight; y++){
       for(int x = 0; x < frameWidth; x++)   
       {
@@ -162,31 +230,28 @@ void draw() {
             B = 0;
             break;
             case(7):
-            R = 255;
-            if(y == 1) //verticle index that counts between 0 and 88 every frame
-              G = 255;
-            else
-              G = 0;
+            R = 0;
+            G = (int)(y*(255/88));
             B = 0;
             break;
         }
-        frame.pixels[x+frameWidth*y] = color(R,G,B);  // input RGB value for each pixel
-        }
+      frame.pixels[x+frameWidth*y] = color(R,G,B);  // input RGB value for each pixel
       }
     }
-    if(FrameCounterX == frameWidth)  //change pattern every 30 seconds
-    {
-      FrameCounterX=0;
-      PatternIndex++; //animation pattern
-    }
+  }
+  if(FrameCounterX == frameWidth)  //change pattern every 30 seconds
+  {
+    FrameCounterX=0;
+    PatternIndex++; //animation pattern
+  }
 
-    FrameCounterX++; // used to change the pattern over time (animation)
-    FrameCounterY++; // used to change the pattern over time (animation)
-    FrameCounterY = FrameCounterY % frameHeight;
+  FrameCounterX++; // used to change the pattern over time (animation)
+  FrameCounterY++; // used to change the pattern over time (animation)
+  FrameCounterY = FrameCounterY % frameHeight;
 
-    PatternIndex = PatternIndex % 7; //5 patterns only
+  PatternIndex = PatternIndex % 7; //5 patterns only
 
-    frame.updatePixels();
+  frame.updatePixels();
     
  //   PImage frame2 = loadImage("C:/Kinect/Arduino/libraries/OctoWS2811/examples/VideoDisplay/Processing/movie2serial/Bleed1.png");
   /* frame2.updatePixels();
@@ -198,18 +263,101 @@ void draw() {
   
   */
   //background(0);
-  // image(img, 90, 80); //<>//
-    
-    
+  // image(img, 90, 80);
+
     image(frame, 0,0); 
+  }
+  else
+  {
+    //object oriented animation similar to (6)
+    surface.setSize( T.Right_Wall.X_Length, T.Right_Wall.Y_Length+T.Left_Wall.Y_Length+T.Right_Roof.Y_Length+T.Left_Roof.Y_Length+T.Top.Y_Length);
+    for(int p=0; p<5; p++){  //5 panels
+      switch(p)
+      {
+        case 0: case 4: //walls will be symetrical
+        for(int y = 0; y < T.Right_Wall.Y_Length; y++){ //use longest panel (should change this to while loop
+          for(int x = 0; x < T.Right_Wall.X_Length; x++)   //use wall x (should change this to while loop
+          {
+            PatternTime = 1000*frameHeight/framerate;
+            R = 255;
+            //if(y == FrameCounterWall_Height) //verticle index that counts between 0 and 88 every frame
+            if(y== (int)(T.Right_Wall.Y_Length*RightHandRaisedRatio))  //change that Y pixel which is related to the right hand raised ratio
+              G = 255;
+            else
+              G = 0;
+            B = 0;
+            T.Right_Wall.Panel_frame.pixels[x+T.Right_Wall.X_Length*y] = color(R,G,B);  // input RGB value for each pixel
+            T.Left_Wall.Panel_frame.pixels[T.Right_Wall.X_Length*T.Right_Wall.Y_Length -1- (x+T.Right_Wall.X_Length*y)] = color(R,G,B);  //inverted index for left wall
+          }
+        }
+        case 1: case 2: case 3: //roofs
+        for(int y = 0; y < T.Right_Roof.Y_Length; y++){ 
+          for(int x = 0; x < T.Right_Roof.X_Length; x++)   
+          {
+            R = 255;
+            //if(y == FrameCounterWall_Height) //verticle index that counts between 0 and 88 every frame
+            if(x== (int)(T.Right_Roof.X_Length * depth_RightHand_Ratio)) //change that X pixel which is related to the right hand depth ratio (maps Z to X)
+              G = 255;
+            else
+              G = 0;
+            B = 0;
+            T.Right_Roof.Panel_frame.pixels[x+T.Right_Roof.X_Length*y] = color(R,G,B);  
+            T.Left_Roof.Panel_frame.pixels[x+T.Right_Roof.X_Length*y] = color(R,G,B);  
+            T.Top.Panel_frame.pixels[x+T.Top.X_Length*y] = color(R,G,B);  
+          }
+        }  
+      }
+    }
+    T.Right_Wall.Panel_frame.updatePixels();
+    T.Right_Roof.Panel_frame.updatePixels();
+    T.Top.Panel_frame.updatePixels();
+    T.Left_Roof.Panel_frame.updatePixels();
+    T.Left_Wall.Panel_frame.updatePixels();
     
+    //integrate the 4 panels into 1 pimage to send to LEDs
+    int destination_offset_Y = 0;
+    frame.copy(T.Right_Wall.Panel_frame,0,0,
+               T.Right_Wall.X_Length,T.Right_Wall.Y_Length,
+               0,destination_offset_Y,
+               T.Right_Wall.X_Length,T.Right_Wall.Y_Length);
+    destination_offset_Y = T.Right_Wall.Y_Length;
+    frame.copy(T.Right_Roof.Panel_frame,0,0,
+               T.Right_Roof.X_Length,T.Right_Roof.Y_Length,
+               0,destination_offset_Y,
+               T.Right_Roof.X_Length,T.Right_Roof.Y_Length);               
+    destination_offset_Y = T.Right_Wall.Y_Length + T.Right_Roof.Y_Length;
+    frame.copy(T.Top.Panel_frame,0,0,
+               T.Top.X_Length,T.Top.Y_Length,
+               0,destination_offset_Y,
+               T.Top.X_Length,T.Top.Y_Length);               
+    destination_offset_Y = T.Right_Wall.Y_Length + T.Right_Roof.Y_Length + T.Top.Y_Length;
+    frame.copy(T.Left_Roof.Panel_frame,0,0,
+               T.Left_Roof.X_Length,T.Left_Roof.Y_Length,
+               0,destination_offset_Y,
+               T.Left_Roof.X_Length,T.Left_Roof.Y_Length);               
+    destination_offset_Y = T.Right_Wall.Y_Length + T.Right_Roof.Y_Length + T.Top.Y_Length + T.Left_Roof.Y_Length;
+    frame.copy(T.Right_Wall.Panel_frame,0,0,
+               T.Right_Wall.X_Length,T.Right_Wall.Y_Length,
+               0,destination_offset_Y,
+               T.Right_Wall.X_Length,T.Right_Wall.Y_Length);         
+    
+    surface.setSize(frame.width, frame.height);                 
+    image(frame, 0, 0);
+    /*
+    image(T.Right_Wall.Panel_frame, 0, 0);
+    image(T.Right_Roof.Panel_frame, 0, T.Right_Wall.Y_Length);
+    image(T.Top.Panel_frame, 0, T.Right_Wall.Y_Length + T.  Right_Roof.Y_Length);
+    image(T.Left_Roof.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+T.Top.Y_Length);
+    image(T.Left_Wall.Panel_frame, 0, T.Right_Wall.Y_Length + T.Right_Roof.Y_Length+ T.Left_Roof.Y_Length+ T.Top.Y_Length);
+    */
+  }
+  
     frameTime = millis();  
     while(frameTime-LastFrameTime<1000/framerate)
     {
       delay(1);
       frameTime = millis();
     }
-
     println(1000/(frameTime-LastFrameTime));
     LastFrameTime = millis();
     
@@ -255,14 +403,15 @@ void draw() {
      // thread(ledSerial[i].write(ledData)); 
     }
     //wait for all threads to finish
-    /*
+    delay(13);   
+    double startThreads = millis();  
     for (int i=0; i < numPorts; i++) {   
       try{
         SendThreads[i].join();
-  
+  //    println(millis() - startThreads);
       } catch (InterruptedException e) {}
     }
-  */
+
     
   }
 }

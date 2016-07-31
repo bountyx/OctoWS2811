@@ -200,8 +200,7 @@ void draw() {
   {
     //object oriented animation similar to (6)
     surface.setSize( T.Right_Wall.X_Length, T.Right_Wall.Y_Length+T.Left_Wall.Y_Length+T.Right_Roof.Y_Length+T.Left_Roof.Y_Length+T.Top.Y_Length);
-   // T.Right_Wall.Panel_frame.loadPixels();
-   // T.Left_Wall.Panel_frame.loadPixels();
+
     for(int p=0; p<5; p++){  //5 panels
       switch(p)
       {
@@ -239,11 +238,13 @@ void draw() {
         }  
       }
     }
+    /*
     T.Right_Wall.Panel_frame.updatePixels();
     T.Right_Roof.Panel_frame.updatePixels();
     T.Top.Panel_frame.updatePixels();
     T.Left_Roof.Panel_frame.updatePixels();
     T.Left_Wall.Panel_frame.updatePixels();
+    */
     
     //integrate the 4 panels into 1 pimage to send to LEDs
     int destination_offset_Y = 0;
@@ -372,14 +373,14 @@ void image2data(PImage image, byte[] data, boolean layout) {
 
         // fetch 8 pixels from the image, 1 for each pin
         pixel[i] = image.pixels[x + i*image.width];
-        println(x + i*image.width);
+ //       println(x + i*image.width);
         pixel[i] = colorWiring(pixel[i]);
-        println(pixel[i]);
+  //      println(pixel[i]);
       }
       // convert 8 pixels to 24 bytes
       for (mask = 0x800000; mask != 0; mask >>= 1) {
         byte b = 0;
-        println(mask);
+   //     println(mask);
         for (int c=0; c < 8; c++) {
           if ((pixel[c] & mask) != 0) b |= (1 << c);
         }

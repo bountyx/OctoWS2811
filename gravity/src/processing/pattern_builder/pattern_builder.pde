@@ -40,7 +40,6 @@ SoundFile Ayukit_Sound;
 class Panel {
   int X_Length;
   int Y_Length;  
-  int P_index;
   PImage Panel_frame = new PImage();
   Panel(int X, int Y)  //constructor to set X and Y and allocate PImage for pixel array
   {
@@ -178,7 +177,7 @@ void draw() {
       RightHandRaisedRatio =  (RightWristP.y-RightKneeP.y*.85)/(HeadP.y - RightKneeP.y);
     }
   }
-  PatternIndex = 2;
+//  PatternIndex = 2;
   //basic patterns that do not use Tunnel object
   if(UsePlanePatterns)
   {

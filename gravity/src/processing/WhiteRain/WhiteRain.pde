@@ -58,7 +58,7 @@ void draw()
       LeftWristdepth = joints[KinectPV2.JointType_WristLeft].getZ();
       HeadDepth = joints[KinectPV2.JointType_Head].getZ(); 
       //Ratio calculation and calibration
-      depth_RightHand_Ratio = RightWristdepth/4; //4 is as deep as you can go!
+      depth_RightHand_Ratio = (RightWristdepth-2)/5; //4 is as deep as you can go!
       RightHandRaisedRatio =  (RightWristP.y-RightKneeP.y*.85)/(HeadP.y - RightKneeP.y);
     }
   }

@@ -35,6 +35,7 @@ double AY_Y = 0;
 boolean AY_OnLeftWall = true;
 boolean AyukitFound = false; 
 SoundFile Ayukit_Sound;
+SoundFile Drum_Bass;
 
 
 class Panel {
@@ -111,6 +112,10 @@ void setup() {
   Ayukit.resize(10,10);
   Ayukit_Sound = new SoundFile(this, "Ayukit.mp3");
   
+  //slow down Drum_Bass
+  Drum_Bass = new SoundFile(this, "Until The World Ends.mp3");
+  
+  
 
   
 }
@@ -124,6 +129,8 @@ public void handleDropListEvents(GDropList list, GEvent event) {
     {
       PatternIndex = result; 
       alternating = false;
+      if((PatternIndex == 1) && (UsePlanePatterns== false))
+        Drum_Bass.play();
     }
     else
     {
@@ -260,15 +267,18 @@ void draw() {
       }
       frame.pixels[x+frameWidth*y] = color(R,G,B);  // input RGB value for each pixel
       }
-     }
+    }
   }
   else
   {
-    switch(PatternIndex)
+    switch(PatternIndex) //<>//
     {
       case(1): //Y and Z tracking
       //object oriented animation similar to (6)
-      for(int p=0; p<5; p++){  //5 panels //<>//
+      
+      Drum_Bass.rate(1.8-(float)RightHandRaisedRatio);
+      Drum_Bass.amp((float)depth_RightHand_Ratio);
+      for(int p=0; p<5; p++){  //5 panels
         switch(p)
         {
           case 0: case 4: //walls will be symetrical
